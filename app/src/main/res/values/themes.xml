@@ -1,0 +1,5 @@
+<resources>
+    <!-- La UI se dibuja con Compose (MaterialTheme); este tema solo cubre
+         el arranque de la Activity. -->
+    <style name="Theme.EjemplosJWT" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

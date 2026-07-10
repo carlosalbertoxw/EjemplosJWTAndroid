@@ -1,3 +1,74 @@
 <resources>
     <string name="app_name">Ejemplos-JWT-Android</string>
+
+    <!-- Genéricos -->
+    <string name="loading">Cargando…</string>
+    <string name="retry">Reintentar</string>
+    <string name="value_missing">—</string>
+
+    <!-- Errores de la API -->
+    <string name="error_network">No se pudo conectar con el servidor. ¿Está corriendo la API y es correcta la URL base?</string>
+    <string name="error_http">Error %1$d del servidor</string>
+    <string name="error_too_many_attempts">Demasiados intentos.</string>
+    <string name="error_retry_after">Reintenta en %1$d segundos.</string>
+    <string name="error_unknown">Error inesperado</string>
+
+    <!-- Catálogo público -->
+    <string name="catalog_title">Catálogo</string>
+    <string name="catalog_login_button">Iniciar sesión</string>
+    <string name="catalog_hint">Catálogo público (GET /api/products/public): el servidor oculta los precios; inicia sesión para verlos.</string>
+
+    <!-- Lista de productos -->
+    <string name="product_no_name">(sin nombre)</string>
+    <string name="product_price_hidden">🔒 precio oculto</string>
+    <string name="product_list_empty">No hay productos</string>
+
+    <!-- Login -->
+    <string name="login_title">Iniciar sesión</string>
+    <string name="login_subtitle">Autenticación con JWT contra una API REST</string>
+    <string name="login_username">Usuario</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_show_password">Ver</string>
+    <string name="login_hide_password">Ocultar</string>
+    <string name="login_submit">Entrar</string>
+    <string name="login_test_users">Usuarios de prueba:\nadmin / Admin123! (rol Admin)\nuser / User123! (rol User)</string>
+    <string name="login_browse_catalog">Ver el catálogo sin iniciar sesión</string>
+
+    <!-- Pantalla principal -->
+    <string name="home_title">Ejemplo JWT</string>
+    <string name="home_logout_short">Salir</string>
+    <string name="home_tab_session">Sesión</string>
+    <string name="home_tab_products">Productos</string>
+
+    <!-- Pestaña Sesión -->
+    <string name="session_me_title">Usuario autenticado — GET /api/auth/me</string>
+    <string name="session_me_id">id: %1$s</string>
+    <string name="session_me_username">usuario: %1$s</string>
+    <string name="session_me_role">rol: %1$s</string>
+    <string name="session_me_expires">el access token expira: %1$s</string>
+    <string name="session_payload_title">Payload del access token</string>
+    <string name="session_payload_hint">Decodificado en el dispositivo (Base64Url): cualquiera puede leer los claims de un JWT, pero solo el servidor puede verificar su firma.</string>
+    <string name="session_refresh_tokens">Renovar tokens</string>
+    <string name="session_logout">Cerrar sesión</string>
+    <string name="session_refresh_hint">“Renovar tokens” llama a POST /api/auth/refresh: el refresh token usado queda revocado (rotación) y llega un par nuevo. Ante un 401 esta renovación también ocurre sola y la petición se reintenta.</string>
+
+    <!-- Mensajes -->
+    <string name="msg_tokens_refreshed">Tokens renovados: el refresh token anterior quedó revocado</string>
+    <string name="msg_product_created">Producto “%1$s” creado con id %2$d</string>
+
+    <!-- Pestaña Productos -->
+    <string name="products_chip_full">Con precio (con token)</string>
+    <string name="products_chip_public">Público (sin precio)</string>
+    <string name="products_new">Nuevo producto</string>
+    <string name="products_admin_hint">Crear productos (POST /api/products) requiere el rol Admin: inicia sesión como admin para ver el botón. Con otro rol el servidor respondería 403.</string>
+
+    <!-- Crear producto -->
+    <string name="create_title">Nuevo producto</string>
+    <string name="create_back">Volver</string>
+    <string name="create_hint">POST /api/products: requiere que el claim role del access token sea Admin; con otro rol el servidor responde 403.</string>
+    <string name="create_name">Nombre</string>
+    <string name="create_description">Descripción (opcional)</string>
+    <string name="create_price">Precio</string>
+    <string name="create_submit">Crear producto</string>
+    <string name="create_submitting">Creando…</string>
 </resources>
