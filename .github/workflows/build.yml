@@ -1,7 +1,10 @@
 name: Build y pruebas
 
 on:
+  # push solo en master: en las ramas de los PR ya corre por pull_request
+  # (si no, cada PR ejecutaría el workflow dos veces).
   push:
+    branches: [master]
   pull_request:
 
 permissions:
