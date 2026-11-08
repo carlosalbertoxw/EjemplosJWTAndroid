@@ -1,6 +1,7 @@
 package com.carlosalbertoxw.ejemplos_jwt_android.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.carlosalbertoxw.ejemplos_jwt_android.R
 import com.carlosalbertoxw.ejemplos_jwt_android.core.ApiFailure
@@ -23,7 +24,8 @@ fun ApiFailure.asText(): String = when (this) {
                 stringResource(R.string.error_http, code)
             }
         val wait = if (code == 429 && retryAfterSeconds != null) {
-            " " + stringResource(R.string.error_retry_after, retryAfterSeconds)
+            val seconds = retryAfterSeconds.toInt()
+            " " + pluralStringResource(R.plurals.error_retry_after, seconds, seconds)
         } else {
             ""
         }

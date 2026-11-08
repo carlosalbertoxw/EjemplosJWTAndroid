@@ -17,19 +17,17 @@ class FakeSessionStorage(initial: Session? = null) : SessionStorage {
         state.value = Session(tokens.accessToken, tokens.refreshToken, "sesion-de-prueba")
     }
 
-    override suspend fun update(tokens: TokenPair) {
+    override suspend fun clear() {
+        state.value = null
+    }
+
+    override fun updateBlocking(tokens: TokenPair) {
         state.value = Session(
             tokens.accessToken,
             tokens.refreshToken,
             state.value?.sessionId ?: "sesion-de-prueba",
         )
     }
-
-    override suspend fun clear() {
-        state.value = null
-    }
-
-    override fun updateBlocking(tokens: TokenPair) = runBlocking { update(tokens) }
 
     override fun clearBlocking() = runBlocking { clear() }
 }

@@ -1,0 +1,5 @@
+# Los scripts del wrapper deben conservar su fin de línea en cualquier SO
+# (con CRLF, ./gradlew falla en Linux/macOS y en CI).
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary

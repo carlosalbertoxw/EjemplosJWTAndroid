@@ -39,7 +39,7 @@ class TokenAuthenticatorTest {
 
         client = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(storage))
-            .authenticator(TokenAuthenticator(storage, authApi))
+            .authenticator(TokenAuthenticator(TokenRefresher(storage, authApi)))
             .build()
     }
 

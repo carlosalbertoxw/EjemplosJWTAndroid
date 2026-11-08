@@ -8,6 +8,7 @@ import com.carlosalbertoxw.ejemplos_jwt_android.auth.AuthRepository
 import com.carlosalbertoxw.ejemplos_jwt_android.auth.SessionApi
 import com.carlosalbertoxw.ejemplos_jwt_android.auth.SessionStorage
 import com.carlosalbertoxw.ejemplos_jwt_android.auth.TokenAuthenticator
+import com.carlosalbertoxw.ejemplos_jwt_android.auth.TokenRefresher
 import com.carlosalbertoxw.ejemplos_jwt_android.auth.TokenStore
 import com.carlosalbertoxw.ejemplos_jwt_android.core.MoshiProvider
 import com.carlosalbertoxw.ejemplos_jwt_android.products.ProductsApi
@@ -58,17 +59,20 @@ class AppContainer(context: Context) {
 
     private val authApi: AuthApi = retrofit(plainClient).create(AuthApi::class.java)
 
+    // Único punto de renovación (automática y manual), serializado con un lock.
+    private val refresher = TokenRefresher(tokenStore, authApi)
+
     // Cliente autenticado: adjunta el access token a cada petición y, ante
     // un 401, renueva el par de tokens y reintenta automáticamente.
     private val apiClient = plainClient.newBuilder()
         .addInterceptor(AuthInterceptor(tokenStore))
-        .authenticator(TokenAuthenticator(tokenStore, authApi))
+        .authenticator(TokenAuthenticator(refresher))
         .build()
 
     private val sessionApi: SessionApi = retrofit(apiClient).create(SessionApi::class.java)
     private val productsApi: ProductsApi = retrofit(apiClient).create(ProductsApi::class.java)
 
-    val authRepository = AuthRepository(authApi, sessionApi, tokenStore)
+    val authRepository = AuthRepository(authApi, sessionApi, tokenStore, refresher)
     val productsRepository = ProductsRepository(productsApi)
 
     // La URL base viene de BuildConfig: se configura en app/build.gradle.kts

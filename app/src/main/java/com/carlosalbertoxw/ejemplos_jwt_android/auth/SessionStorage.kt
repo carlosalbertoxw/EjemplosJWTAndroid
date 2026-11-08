@@ -18,12 +18,15 @@ interface SessionStorage {
     /** Login: guarda los tokens y estrena identificador de sesión. */
     suspend fun startSession(tokens: TokenPair)
 
-    /** Refresh: reemplaza los tokens conservando la misma sesión. */
-    suspend fun update(tokens: TokenPair)
-
+    /** Logout: borra la sesión. */
     suspend fun clear()
 
+    /**
+     * Refresh: reemplaza los tokens conservando la misma sesión. Es bloqueante
+     * porque lo llama el TokenRefresher desde los hilos de red de OkHttp.
+     */
     fun updateBlocking(tokens: TokenPair)
 
+    /** Borra la sesión desde un hilo de red (refresh rechazado). */
     fun clearBlocking()
 }

@@ -59,7 +59,7 @@ class TokenStore(private val context: Context) : SessionStorage {
         cacheLoaded = true
     }
 
-    override suspend fun update(tokens: TokenPair) {
+    private suspend fun update(tokens: TokenPair) {
         var sessionId = cached?.sessionId
         context.dataStore.edit { prefs ->
             sessionId = prefs[SESSION_ID] ?: sessionId

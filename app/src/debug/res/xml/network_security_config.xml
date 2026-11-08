@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solo en compilaciones DEBUG: los hosts de desarrollo pueden usar HTTP sin
+     TLS; hacia cualquier otro host el tráfico en claro queda bloqueado. El APK
+     de release no incluye esta excepción, así que su API debe ir por HTTPS. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- localhost de la PC visto desde el emulador -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!-- Para un dispositivo físico, agrega aquí la IP de tu PC en la red local,
+             p. ej.: <domain includeSubdomains="false">192.168.1.75</domain> -->
+    </domain-config>
+</network-security-config>

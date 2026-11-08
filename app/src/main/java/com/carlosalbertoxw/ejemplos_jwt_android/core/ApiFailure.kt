@@ -1,10 +1,12 @@
 package com.carlosalbertoxw.ejemplos_jwt_android.core
 
+import com.squareup.moshi.JsonClass
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 
 /** Formato de error de la API: {"error": "..."} */
+@JsonClass(generateAdapter = true)
 data class ApiError(
     val error: String?,
 )

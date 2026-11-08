@@ -3,14 +3,16 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- allowBackup=false: los tokens de sesión no deben salir del
-         dispositivo en los respaldos automáticos del sistema. -->
+    <!-- Los tokens de sesión no deben salir del dispositivo: allowBackup=false
+         desactiva los respaldos hasta Android 11 y dataExtractionRules excluye
+         todo de la nube y de la transferencia entre dispositivos en Android 12+. -->
     <application
         android:name=".App"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EjemplosJWT">

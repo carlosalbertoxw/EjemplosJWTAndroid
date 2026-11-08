@@ -1,0 +1,25 @@
+name: Build y pruebas
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # El daemon de Gradle usa el JDK 21 que fija gradle/gradle-daemon-jvm.properties.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Pruebas unitarias, Android Lint y build de release (R8)
+        run: ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease

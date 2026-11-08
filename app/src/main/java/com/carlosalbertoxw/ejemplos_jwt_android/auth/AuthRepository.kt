@@ -1,12 +1,12 @@
 package com.carlosalbertoxw.ejemplos_jwt_android.auth
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import retrofit2.await
 
 /**
  * Estado de la sesión para la UI. Loading solo ocurre al arrancar, mientras
@@ -28,6 +28,7 @@ class AuthRepository(
     private val authApi: AuthApi,
     private val sessionApi: SessionApi,
     private val storage: SessionStorage,
+    private val refresher: TokenRefresher,
 ) {
 
     /** La UI decide la pantalla observando este flujo (con initial = Loading). */
@@ -47,9 +48,12 @@ class AuthRepository(
      * (Ante un 401 esta renovación además ocurre sola, en TokenAuthenticator.)
      */
     suspend fun refreshTokens() {
-        val current = storage.session.first() ?: return
-        val tokens = authApi.refresh(RefreshRequest(current.refreshToken)).await()
-        storage.update(tokens)
+        // Pasa por el mismo TokenRefresher (y su lock) que la renovación
+        // automática: si coincidieran, el servidor vería el mismo refresh token
+        // dos veces, lo trataría como robo y revocaría todas las sesiones.
+        val outcome = withContext(Dispatchers.IO) { refresher.refresh(staleAccessToken = null) }
+        if (outcome is RefreshOutcome.NetworkError) throw outcome.cause
+        // SessionExpired: el refresher ya borró la sesión y la UI vuelve al login.
     }
 
     /** GET /api/auth/me: pide al servidor los claims del access token actual. */
@@ -59,12 +63,15 @@ class AuthRepository(
     suspend fun accessTokenPayload(): String? =
         storage.session.first()?.accessToken?.let { JwtDecoder.prettyPayload(it) }
 
-    /** POST /api/auth/logout: revoca el refresh token y borra la sesión local. */
+    /**
+     * POST /api/auth/logout: revoca el refresh token (cierra esta sesión) y
+     * borra la sesión local. Va por el cliente plano, sin access token.
+     */
     suspend fun logout() {
         val current = storage.session.first()
         try {
             if (current != null) {
-                sessionApi.logout(RefreshRequest(current.refreshToken))
+                authApi.logout(RefreshRequest(current.refreshToken))
             }
         } catch (e: CancellationException) {
             throw e

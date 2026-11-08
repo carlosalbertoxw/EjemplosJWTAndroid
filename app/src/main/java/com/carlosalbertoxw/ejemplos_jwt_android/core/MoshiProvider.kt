@@ -2,7 +2,6 @@ package com.carlosalbertoxw.ejemplos_jwt_android.core
 
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
 /**
  * Instancia única de Moshi para toda la app. A diferencia de Gson, Moshi
@@ -12,9 +11,10 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
  */
 object MoshiProvider {
 
-    val moshi: Moshi = Moshi.Builder()
-        .add(KotlinJsonAdapterFactory())
-        .build()
+    // Los adaptadores de los modelos (@JsonClass(generateAdapter = true)) se
+    // generan en compilación con KSP: sin reflexión ni kotlin-reflect, más
+    // rápido y compatible con R8 sin reglas extra.
+    val moshi: Moshi = Moshi.Builder().build()
 
     val apiErrorAdapter: JsonAdapter<ApiError> by lazy {
         moshi.adapter(ApiError::class.java)

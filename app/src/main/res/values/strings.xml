@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Ejemplos-JWT-Android</string>
 
     <!-- Genéricos -->
@@ -8,9 +8,13 @@
 
     <!-- Errores de la API -->
     <string name="error_network">No se pudo conectar con el servidor. ¿Está corriendo la API y es correcta la URL base?</string>
-    <string name="error_http">Error %1$d del servidor</string>
+    <!-- %1$d es un código HTTP (p. ej. 500), no una cantidad -->
+    <string name="error_http" tools:ignore="PluralsCandidate">Error %1$d del servidor</string>
     <string name="error_too_many_attempts">Demasiados intentos.</string>
-    <string name="error_retry_after">Reintenta en %1$d segundos.</string>
+    <plurals name="error_retry_after">
+        <item quantity="one">Reintenta en %1$d segundo.</item>
+        <item quantity="other">Reintenta en %1$d segundos.</item>
+    </plurals>
     <string name="error_unknown">Error inesperado</string>
 
     <!-- Catálogo público -->
