@@ -7,7 +7,12 @@ plugins {
 
 android {
     namespace = "com.carlosalbertoxw.ejemplos_jwt_android"
-    compileSdk = 37
+    // Compose BOM 2026.11 exige compilar contra la API 37.1 o superior.
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 2
+        }
+    }
 
     defaultConfig {
         applicationId = "com.carlosalbertoxw.ejemplos_jwt_android"
