@@ -24,5 +24,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
+      # El release exige una URL HTTPS (ver checkReleaseApiBaseUrl en
+      # app/build.gradle.kts); en CI basta una de ejemplo para compilarlo.
       - name: Pruebas unitarias, Android Lint y build de release (R8)
-        run: ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease
+        run: >-
+          ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease
+          -PapiBaseUrl=https://api.example.com/

@@ -123,6 +123,10 @@ es `AppContainer`.
    [network_security_config.xml](app/src/debug/res/xml/network_security_config.xml):
    el tráfico HTTP en claro solo está permitido hacia los hosts de
    desarrollo listados ahí, y **solo en las compilaciones debug**.
+
+   El **release** exige una URL `https://`: sin ella, `assembleRelease`
+   falla en vez de generar un APK que no podría conectarse
+   (`./gradlew assembleRelease -PapiBaseUrl=https://mi-api.example/`).
 3. Al abrir la app se muestra el catálogo público (sin precios). Con
    **Iniciar sesión** entra con los usuarios de prueba:
    `admin / Admin123!` (rol Admin) o `user / User123!` (rol User).
@@ -131,9 +135,12 @@ es `AppContainer`.
 ## Tests
 
 ```
-./gradlew :app:testDebugUnitTest   # pruebas unitarias
+./gradlew :app:testDebugUnitTest   # pruebas unitarias y de pantallas (Robolectric)
 ./gradlew :app:lintDebug           # Android Lint (falla ante cualquier aviso)
 ```
+
+Lint trata los avisos como errores, salvo los de «hay una versión más nueva»
+de una dependencia: esos los cubre Dependabot con sus PR semanales.
 
 - `TokenAuthenticatorTest` — el flujo 401 → refresh → reintento con un
   servidor HTTP falso (MockWebServer): renovación exitosa, refresh fallido
@@ -142,6 +149,9 @@ es `AppContainer`.
   hacen un solo canje en el servidor; un refresh rechazado borra la sesión y
   un error de red la conserva.
 - `JwtDecoderTest` — decodificación del payload Base64Url de un JWT.
+- `LoginScreenTest` — la pantalla de login en Compose, en la JVM con
+  Robolectric (sin emulador): el botón se habilita con ambos campos, un login
+  correcto inicia la sesión y un error de red se muestra sin iniciarla.
 
 ## Notas de seguridad
 
@@ -157,9 +167,11 @@ Este es un proyecto educativo; aun así aplica varias prácticas reales:
   solo en debug** ([src/debug](app/src/debug)); el APK de release no tiene esa
   excepción, así que su API debe ir por HTTPS.
 - El APK de release se compila con **R8** (código reducido y ofuscado).
-- El log de peticiones (que incluye los tokens, útil para estudiar el
-  flujo en Logcat) solo existe en compilaciones **debug**; en release no se
-  registra nada.
+- El log de peticiones (útil para estudiar el flujo en Logcat) solo existe
+  en compilaciones **debug**; en release no se registra nada. El encabezado
+  `Authorization` se oculta, pero los cuerpos se ven completos: el del login
+  incluye la **contraseña** y las respuestas incluyen los tokens, así que no
+  compartas esos logs.
 
 ## Solución de problemas
 
@@ -183,7 +195,10 @@ Este es un proyecto educativo; aun así aplica varias prácticas reales:
 ## Stack
 
 Kotlin 2.4 · AGP 9.5 (Kotlin integrado) · Gradle 9.9 · Jetpack Compose (BOM
-2026.09) · Retrofit 3 · OkHttp 5 · Moshi con KSP · DataStore · compileSdk 37.
+2026.11) · Retrofit 3 · OkHttp 5 · Moshi con KSP · DataStore · compileSdk 37.2
+(targetSdk 37, minSdk 26). Pruebas: JUnit 4, MockWebServer y Robolectric con
+Compose UI Test. Las versiones están en
+[gradle/libs.versions.toml](gradle/libs.versions.toml) y las actualiza Dependabot.
 
 ## Licencia
 
