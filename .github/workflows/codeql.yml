@@ -1,0 +1,41 @@
+name: CodeQL
+
+on:
+  # push solo en master: en las ramas de los PR ya corre por pull_request
+  # (si no, cada PR ejecutaría el workflow dos veces).
+  push:
+    branches: [master]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Kotlin no admite build-mode none: CodeQL extrae el código observando
+      # la compilación, así que se compila con el mismo JDK 21 del build.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: java-kotlin
+          build-mode: manual
+
+      # Sin caché de Gradle y con el compilador de Kotlin en el mismo proceso,
+      # para que CodeQL vea compilarse todo el código.
+      - name: Compilar
+        run: >-
+          ./gradlew :app:compileDebugKotlin --no-daemon --no-build-cache
+          -Pkotlin.compiler.execution.strategy=in-process
+
+      - uses: github/codeql-action/analyze@v4

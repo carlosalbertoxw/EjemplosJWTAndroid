@@ -5,6 +5,15 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// URL base de la API. Se puede sobreescribir sin tocar el código:
+//   - en gradle.properties:  apiBaseUrl=http://192.168.1.75:8000/
+//   - o por línea de comandos:  ./gradlew assembleDebug -PapiBaseUrl=...
+// Por defecto, 10.0.2.2 = localhost de tu PC visto desde el emulador.
+// Cualquiera de las APIs de ejemplo sirve (mismo contrato): PHP en el
+// puerto 8000, Java en el 8080 y .NET en el 5274.
+val apiBaseUrl: Provider<String> = providers.gradleProperty("apiBaseUrl")
+    .orElse("http://10.0.2.2:8000/")
+
 android {
     namespace = "com.carlosalbertoxw.ejemplos_jwt_android"
     // Compose BOM 2026.11 exige compilar contra la API 37.1 o superior.
@@ -21,15 +30,7 @@ android {
         versionCode = 3
         versionName = "3.0"
 
-        // URL base de la API. Se puede sobreescribir sin tocar el código:
-        //   - en gradle.properties:  apiBaseUrl=http://192.168.1.75:8000/
-        //   - o por línea de comandos:  ./gradlew assembleDebug -PapiBaseUrl=...
-        // Por defecto, 10.0.2.2 = localhost de tu PC visto desde el emulador.
-        // Cualquiera de las APIs de ejemplo sirve (mismo contrato): PHP en el
-        // puerto 8000, Java en el 8080 y .NET en el 5274.
-        val apiBaseUrl = providers.gradleProperty("apiBaseUrl")
-            .getOrElse("http://10.0.2.2:8000/")
-        buildConfigField("String", "BASE_URL", "\"$apiBaseUrl\"")
+        buildConfigField("String", "BASE_URL", "\"${apiBaseUrl.get()}\"")
     }
 
     buildTypes {
@@ -53,7 +54,32 @@ android {
     lint {
         warningsAsErrors = true
         abortOnError = true
+        // Los avisos de "hay una versión más nueva" no dependen del código sino
+        // del paso del tiempo: con warningsAsErrors romperían la CI cada vez que
+        // se publica una versión, y cada PR de Dependabot (que sube una sola
+        // dependencia) fallaría por las demás. Las versiones las propone Dependabot.
+        disable += setOf("GradleDependency", "AndroidGradlePluginVersion", "NewerVersionAvailable")
     }
+    testOptions {
+        // Robolectric necesita los recursos de Android para las pruebas de Compose.
+        unitTests.isIncludeAndroidResources = true
+    }
+}
+
+// El APK de release no permite HTTP en claro (la excepción para 10.0.2.2 solo
+// existe en src/debug): sin una URL https:// compilaría bien pero fallaría en
+// todas las peticiones. Se comprueba al construir el release, no en debug.
+val checkReleaseApiBaseUrl = tasks.register("checkReleaseApiBaseUrl") {
+    val url = apiBaseUrl
+    doLast {
+        check(url.get().startsWith("https://")) {
+            "El release necesita una URL HTTPS: ./gradlew assembleRelease -PapiBaseUrl=https://... " +
+                "(valor actual: ${url.get()})"
+        }
+    }
+}
+tasks.matching { it.name == "preReleaseBuild" }.configureEach {
+    dependsOn(checkReleaseApiBaseUrl)
 }
 
 dependencies {
@@ -77,4 +103,9 @@ dependencies {
     testImplementation(libs.junit)
     // Servidor HTTP falso para probar el flujo 401 -> refresh -> reintento
     testImplementation(libs.okhttp.mockwebserver)
+    // Pruebas de pantallas Compose en la JVM (sin emulador) con Robolectric
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.robolectric)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

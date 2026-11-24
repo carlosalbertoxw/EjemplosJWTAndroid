@@ -6,8 +6,10 @@ updates:
     schedule:
       interval: weekly
     groups:
-      androidx:
-        patterns: ["androidx.*"]
+      # AndroidX y el plugin de Android juntos: sus actualizaciones suelen
+      # depender entre sí (p. ej. un Compose BOM nuevo que exige otro compileSdk).
+      android:
+        patterns: ["androidx.*", "com.android.*"]
       kotlin:
         patterns: ["org.jetbrains.kotlin*", "com.google.devtools.ksp*"]
   - package-ecosystem: github-actions

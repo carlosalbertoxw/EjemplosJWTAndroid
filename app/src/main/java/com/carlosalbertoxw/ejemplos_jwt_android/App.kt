@@ -13,6 +13,7 @@ import com.carlosalbertoxw.ejemplos_jwt_android.auth.TokenStore
 import com.carlosalbertoxw.ejemplos_jwt_android.core.MoshiProvider
 import com.carlosalbertoxw.ejemplos_jwt_android.products.ProductsApi
 import com.carlosalbertoxw.ejemplos_jwt_android.products.ProductsRepository
+import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -40,20 +41,26 @@ class AppContainer(context: Context) {
 
     private val tokenStore: SessionStorage = TokenStore(context)
 
-    // En debug, BODY imprime en Logcat las peticiones completas (tokens
-    // incluidos): útil para estudiar el flujo JWT. En release no se
-    // registra nada, por construcción.
+    // En debug, BODY imprime en Logcat las peticiones completas: útil para
+    // estudiar el flujo JWT. El encabezado Authorization se oculta, pero los
+    // cuerpos se ven tal cual (el del login lleva la contraseña y las
+    // respuestas, los tokens). En release no se registra nada, por construcción.
     private val logging = HttpLoggingInterceptor().apply {
         level = if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor.Level.BODY
         } else {
             HttpLoggingInterceptor.Level.NONE
         }
+        redactHeader("Authorization")
     }
 
     // Cliente "plano" para login y refresh: sin token ni renovación
     // automática, de modo que renovar tokens nunca pueda entrar en bucle.
+    // Timeouts explícitos (los mismos que los clientes web de los otros
+    // ejemplos): si la API no responde, la app falla rápido en vez de colgarse.
     private val plainClient = OkHttpClient.Builder()
+        .connectTimeout(3, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
         .addInterceptor(logging)
         .build()
 
